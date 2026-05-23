@@ -1,10 +1,4 @@
 {
   "name": "swamediajgj-vercel-root",
-  "private": true,
-  "scripts": {
-    "install:app": "npm install --prefix \"auto payment/donate-easy-main\"",
-    "build": "npm run build --prefix \"auto payment/donate-easy-main\"",
-    "dev": "npm run dev --prefix \"auto payment/donate-easy-main\"",
-    "preview": "npm run preview --prefix \"auto payment/donate-easy-main\""
-  }
+  "private": true
 }
