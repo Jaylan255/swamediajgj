@@ -1,79 +1,57 @@
-
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Heart, BookOpen, Home, User } from 'lucide-react';
+import { Heart, Quote, BookOpen, User, Search, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
-import { useAppStore } from '@/lib/store';
-import { TRANSLATIONS } from '@/lib/data';
 
-export function BottomNav() {
+const navItems = [
+  { href: '/', label: 'Home', icon: Home },
+  { href: '/texts', label: 'Love Texts', icon: Heart },
+  { href: '/quotes', label: 'Quotes', icon: Quote },
+  { href: '/stories', label: 'Stories', icon: BookOpen },
+  { href: '/favorites', label: 'Saved', icon: User },
+];
+
+export function Navbar() {
   const pathname = usePathname();
-  const [isNavigating, setIsNavigating] = useState(false);
-  const { language } = useAppStore();
-  
-  const t = TRANSLATIONS[language] || TRANSLATIONS['en'];
-
-  const navItems = [
-    { href: '/', label: 'Home', icon: Home },
-    { href: '/texts', label: 'Texts', icon: Heart },
-    { href: '/stories', label: 'Stories', icon: BookOpen },
-    { href: '/favorites', label: 'Profile', icon: User },
-  ];
-
-  const handleNavClick = () => {
-    setIsNavigating(true);
-    setTimeout(() => setIsNavigating(false), 800);
-  };
 
   return (
-    <>
-      {isNavigating && (
-        <div className="fixed top-0 left-0 right-0 h-1.5 z-[100] overflow-hidden">
-          <div className="h-full bg-primary animate-pulse w-full transition-all duration-500" />
+    <nav className="fixed top-4 inset-x-4 z-50 h-16 flex items-center justify-between px-6 glass rounded-2xl max-w-5xl mx-auto border-white/40 shadow-2xl">
+      <Link href="/" className="flex items-center gap-2">
+        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+          <Heart className="text-white w-6 h-6 fill-current" />
         </div>
-      )}
+        <span className="text-xl font-bold gradient-text hidden sm:block">Lovegurden</span>
+      </Link>
 
-      <nav className="fixed bottom-8 inset-x-0 z-[60] flex items-center justify-center gap-4 px-6 pointer-events-none">
-        <div className="flex items-center justify-center gap-3 glass p-2 rounded-[2.5rem] border-white/40 shadow-2xl pointer-events-auto">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={handleNavClick}
-                className={cn(
-                  "flex flex-col items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-[2rem] transition-all duration-500 relative",
-                  isActive 
-                    ? "bg-primary text-white scale-110 -translate-y-2 shadow-xl" 
-                    : "text-muted-foreground hover:bg-white/40 active:scale-95"
-                )}
-              >
-                <Icon 
-                  className={cn(
-                    "w-6 h-6 transition-all duration-300", 
-                    isActive ? "scale-110 fill-white" : "scale-100"
-                  )} 
-                />
-                <span className={cn(
-                  "text-[8px] font-black uppercase tracking-tighter mt-1 transition-opacity",
-                  isActive ? "opacity-100" : "opacity-60"
-                )}>
-                  {item.label}
-                </span>
-                
-                {isActive && (
-                  <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full animate-ping" />
-                )}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-    </>
+      <div className="flex items-center gap-1 sm:gap-4">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-300",
+                isActive 
+                  ? "bg-primary/10 text-primary font-medium" 
+                  : "text-muted-foreground hover:bg-muted"
+              )}
+            >
+              <Icon className={cn("w-5 h-5", isActive && "fill-current")} />
+              <span className="hidden md:block text-sm">{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button className="p-2 hover:bg-muted rounded-full transition-colors">
+          <Search className="w-5 h-5 text-muted-foreground" />
+        </button>
+      </div>
+    </nav>
   );
 }

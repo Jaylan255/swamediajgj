@@ -1,21 +1,42 @@
 
-'use client';
+import type {Metadata} from 'next';
+import './globals.css';
+import { BottomNav } from '@/components/layout/BottomNav';
+import { Toaster } from '@/components/ui/toaster';
+import { AppProvider } from '@/lib/store';
+import { AppUIWrapper } from '@/components/layout/AppProvider';
+import { FirebaseClientProvider } from '@/firebase';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+export const metadata: Metadata = {
+  title: 'Lovegurden | Modern Love Vibes Hub',
+  description: 'Your one-stop destination for love texts, romantic stories, and inspirational quotes.',
+};
 
-export default function KeyboardPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace('/');
-  }, [router]);
-
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="text-center animate-pulse">
-        <p className="text-xl font-bold text-muted-foreground">Redirecting to Love Hub...</p>
-      </div>
-    </div>
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet" />
+      </head>
+      <body className="antialiased min-h-screen">
+        <FirebaseClientProvider>
+          <AppProvider>
+            <AppUIWrapper>
+              <main className="container mx-auto px-4 pt-8 pb-40 relative z-10">
+                {children}
+              </main>
+              <BottomNav />
+              <Toaster />
+            </AppUIWrapper>
+          </AppProvider>
+        </FirebaseClientProvider>
+      </body>
+    </html>
   );
 }

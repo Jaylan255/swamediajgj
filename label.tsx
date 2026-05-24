@@ -1,61 +1,79 @@
+
 'use client';
 
-import { useAppStore } from '@/lib/store';
-import { InteractiveEffects } from '@/components/effects/InteractiveEffects';
-import { ThemeAnimations } from '@/components/effects/ThemeAnimations';
-import { LoveLoader } from '@/components/ui/love-loader';
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Heart, BookOpen, Home, User } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { useAppStore } from '@/lib/store';
+import { TRANSLATIONS } from '@/lib/data';
 
-export function AppUIWrapper({ children }: { children: React.ReactNode }) {
-  const { theme, isLoaded } = useAppStore();
-  const [mounted, setMounted] = useState(false);
+export function BottomNav() {
   const pathname = usePathname();
-  const [isPageLoading, setIsPageLoading] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const { language } = useAppStore();
+  
+  const t = TRANSLATIONS[language] || TRANSLATIONS['en'];
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const navItems = [
+    { href: '/', label: 'Home', icon: Home },
+    { href: '/texts', label: 'Texts', icon: Heart },
+    { href: '/stories', label: 'Stories', icon: BookOpen },
+    { href: '/favorites', label: 'Profile', icon: User },
+  ];
 
-  useEffect(() => {
-    if (mounted) {
-      setIsPageLoading(true);
-      const timer = setTimeout(() => setIsPageLoading(false), 800);
-      return () => clearTimeout(timer);
-    }
-  }, [pathname, mounted]);
-
-  if (!mounted || !isLoaded) {
-    return <LoveLoader />;
-  }
+  const handleNavClick = () => {
+    setIsNavigating(true);
+    setTimeout(() => setIsNavigating(false), 800);
+  };
 
   return (
-    <div 
-      data-theme={theme} 
-      className="gradient-bg transition-colors duration-700 min-h-screen relative overflow-x-hidden"
-    >
-      {/* Top Progress Bar */}
-      {isPageLoading && (
-        <div className="fixed top-0 left-0 right-0 z-[10000] h-1 bg-primary/10">
-          <div className="h-full bg-gradient-to-r from-primary via-accent to-primary animate-[shimmer_2s_infinite] w-full origin-left" 
-               style={{ animation: 'shimmer 1.5s ease-in-out infinite' }} />
+    <>
+      {isNavigating && (
+        <div className="fixed top-0 left-0 right-0 h-1.5 z-[100] overflow-hidden">
+          <div className="h-full bg-primary animate-pulse w-full transition-all duration-500" />
         </div>
       )}
-      
-      <style jsx global>{`
-        @keyframes shimmer {
-          0% { transform: scaleX(0); opacity: 0; }
-          50% { transform: scaleX(0.7); opacity: 1; }
-          100% { transform: scaleX(1); opacity: 0; }
-        }
-      `}</style>
 
-      <ThemeAnimations />
-      <InteractiveEffects />
-      
-      <div className={`transition-opacity duration-700 ${isPageLoading ? 'opacity-50' : 'opacity-100'}`}>
-        {children}
-      </div>
-    </div>
+      <nav className="fixed bottom-8 inset-x-0 z-[60] flex items-center justify-center gap-4 px-6 pointer-events-none">
+        <div className="flex items-center justify-center gap-3 glass p-2 rounded-[2.5rem] border-white/40 shadow-2xl pointer-events-auto">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={handleNavClick}
+                className={cn(
+                  "flex flex-col items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-[2rem] transition-all duration-500 relative",
+                  isActive 
+                    ? "bg-primary text-white scale-110 -translate-y-2 shadow-xl" 
+                    : "text-muted-foreground hover:bg-white/40 active:scale-95"
+                )}
+              >
+                <Icon 
+                  className={cn(
+                    "w-6 h-6 transition-all duration-300", 
+                    isActive ? "scale-110 fill-white" : "scale-100"
+                  )} 
+                />
+                <span className={cn(
+                  "text-[8px] font-black uppercase tracking-tighter mt-1 transition-opacity",
+                  isActive ? "opacity-100" : "opacity-60"
+                )}>
+                  {item.label}
+                </span>
+                
+                {isActive && (
+                  <div className="absolute -bottom-1 w-1 h-1 bg-white rounded-full animate-ping" />
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 }

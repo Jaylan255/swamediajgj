@@ -1,62 +1,73 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
+import { useEffect, useState } from 'react';
 
-interface Particle {
+interface FloatingElement {
   id: number;
-  x: number;
-  y: number;
+  left: string;
+  duration: string;
+  delay: string;
+  size: string;
   emoji: string;
 }
 
-export function InteractiveEffects() {
-  const { settings } = useAppStore();
-  const [particles, setParticles] = useState<Particle[]>([]);
+export function ThemeAnimations() {
+  const { theme, settings } = useAppStore();
+  const [mounted, setMounted] = useState(false);
+  const [elements, setElements] = useState<FloatingElement[]>([]);
 
   useEffect(() => {
-    if (!settings.effectsEnabled) return;
+    setMounted(true);
+    
+    if (!settings.animationsEnabled || settings.animationType === 'none') {
+      setElements([]);
+      return;
+    }
 
-    const handleClick = (e: MouseEvent) => {
-      const emojis = ['❤️', '💖', '✨', '🌹', '🌸', '💋'];
-      const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-      
-      const newParticle: Particle = {
-        id: Date.now(),
-        x: e.clientX,
-        y: e.clientY,
-        emoji: randomEmoji,
-      };
-
-      setParticles((prev) => [...prev, newParticle]);
-
-      // Sound effect
-      if (settings.soundEnabled) {
-        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-        audio.volume = 0.2;
-        audio.play().catch(() => {});
+    const getEmoji = () => {
+      switch (settings.animationType) {
+        case 'roses': return '🌹';
+        case 'sparkles': return '✨';
+        case 'rain': return theme === 'dark-love' ? '💧' : '❤️';
+        case 'hearts':
+        default: return '❤️';
       }
-
-      setTimeout(() => {
-        setParticles((prev) => prev.filter((p) => p.id !== newParticle.id));
-      }, 800);
     };
 
-    window.addEventListener('click', handleClick);
-    return () => window.removeEventListener('click', handleClick);
-  }, [settings]);
+    const count = settings.animationType === 'rain' ? 30 : 15;
+
+    const newElements = Array.from({ length: count }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      duration: settings.animationType === 'rain' ? `${Math.random() * 2 + 2}s` : `${Math.random() * 10 + 5}s`,
+      delay: `${Math.random() * 5}s`,
+      size: `${Math.random() * 20 + 10}px`,
+      emoji: getEmoji()
+    }));
+    
+    setElements(newElements);
+  }, [settings.animationsEnabled, settings.animationType, theme]);
+
+  if (!mounted || !settings.animationsEnabled || settings.animationType === 'none') return null;
 
   return (
-    <>
-      {particles.map((p) => (
-        <span
-          key={p.id}
-          className="click-heart"
-          style={{ left: p.x, top: p.y }}
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {elements.map((el) => (
+        <div
+          key={el.id}
+          className="absolute animate-heart-float"
+          style={{
+            left: el.left,
+            animationDuration: el.duration,
+            animationDelay: el.delay,
+            fontSize: el.size,
+            opacity: 0.3
+          }}
         >
-          {p.emoji}
-        </span>
+          {el.emoji}
+        </div>
       ))}
-    </>
+    </div>
   );
 }

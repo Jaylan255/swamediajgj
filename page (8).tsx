@@ -1,159 +1,118 @@
-'use client';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-import { useFavorites, useAppStore } from '@/lib/store';
-import { LOVE_TEXTS, TRANSLATIONS } from '@/lib/data';
-import { TextCard } from '@/components/content/TextCard';
-import { Heart, User, Trash2, Quote, Settings, Sparkles, ChevronRight, Bookmark, BarChart2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle, 
-  AlertDialogTrigger 
-} from '@/components/ui/alert-dialog';
+@layer base {
+  :root {
+    --background: 300 13% 98%;
+    --foreground: 350 20% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 350 20% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 350 20% 15%;
+    --primary: 350 89% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 271 91% 96%;
+    --secondary-foreground: 271 91% 40%;
+    --muted: 271 20% 94%;
+    --muted-foreground: 350 10% 45%;
+    --accent: 271 91% 65%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 350 20% 90%;
+    --input: 350 20% 90%;
+    --ring: 350 89% 60%;
+    --radius: 1.5rem;
+  }
 
-export default function ProfilePage() {
-  const { favorites, clearAllFavorites } = useFavorites();
-  const { language } = useAppStore();
-  
-  const t = TRANSLATIONS[language] || TRANSLATIONS['en'];
-  
-  const savedTexts = LOVE_TEXTS.filter(item => favorites.includes(item.id));
-  const hasItems = savedTexts.length > 0;
+  [data-theme='pink-blossom'] {
+    --background: 330 100% 98%;
+    --foreground: 330 40% 20%;
+    --primary: 330 80% 60%;
+    --accent: 330 100% 85%;
+    --secondary: 330 100% 94%;
+  }
 
-  const quickLinks = [
-    { href: '/quotes', label: 'Wisdom Deck', icon: Quote, color: 'text-purple-500', bg: 'bg-purple-100 dark:bg-purple-900/30' },
-    { href: '/settings', label: 'Settings', icon: Settings, color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30' },
-  ];
+  [data-theme='dark-love'] {
+    --background: 350 20% 5%;
+    --foreground: 350 10% 95%;
+    --card: 350 20% 8%;
+    --primary: 350 100% 50%;
+    --accent: 0 100% 50%;
+    --border: 350 20% 15%;
+    --muted: 350 20% 12%;
+    --muted-foreground: 350 10% 60%;
+  }
+}
 
-  return (
-    <div className="space-y-12 py-8 max-w-5xl mx-auto pb-40 px-4">
-      {/* Header Profile Section */}
-      <div className="flex flex-col items-center text-center gap-6 glass p-10 rounded-[3rem] border-white/40 relative overflow-hidden shadow-2xl">
-        {/* Background Decoration */}
-        <div className="absolute top-0 right-0 p-4 text-primary/5 opacity-10 pointer-events-none">
-          <User size={200} fill="currentColor" />
-        </div>
-        
-        <div className="relative">
-          <div className="w-28 h-28 bg-gradient-to-br from-primary via-accent to-primary rounded-full p-1 shadow-2xl animate-pulse">
-            <div className="w-full h-full bg-white dark:bg-slate-900 rounded-full flex items-center justify-center">
-              <User size={48} className="text-primary" />
-            </div>
-          </div>
-          <div className="absolute -bottom-2 -right-2 bg-accent text-white p-2 rounded-xl shadow-lg">
-            <Sparkles size={16} />
-          </div>
-        </div>
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body transition-colors duration-500 overflow-x-hidden;
+  }
+}
 
-        <div className="space-y-2">
-          <h1 className="text-4xl font-black gradient-text tracking-tighter">Profile Hub</h1>
-          <p className="text-muted-foreground font-medium italic">Your personalized garden of love.</p>
-        </div>
+.glass {
+  @apply bg-white/40 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+}
 
-        {/* Quick Stats */}
-        <div className="flex gap-4 mt-2">
-          <div className="px-6 py-2 rounded-2xl glass border-primary/10 flex items-center gap-2">
-            <Bookmark size={16} className="text-primary" />
-            <span className="font-bold">{favorites.length} Saved</span>
-          </div>
-          <div className="px-6 py-2 rounded-2xl glass border-primary/10 flex items-center gap-2">
-            <BarChart2 size={16} className="text-accent" />
-            <span className="font-bold">Active Member</span>
-          </div>
-        </div>
-      </div>
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-gradient-flow;
+}
 
-      {/* Hub Controls */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {quickLinks.map((link) => (
-          <Link 
-            key={link.href} 
-            href={link.href}
-            className="glass group p-8 rounded-[2.5rem] border-white/40 flex items-center justify-between hover:scale-[1.05] transition-all duration-300 shadow-xl"
-          >
-            <div className="flex items-center gap-6">
-              <div className={cn("p-5 rounded-2xl shadow-inner", link.bg)}>
-                <link.icon className={cn("w-7 h-7", link.color)} />
-              </div>
-              <div>
-                <span className="font-black text-xl tracking-tight block">{link.label}</span>
-                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Personalize</span>
-              </div>
-            </div>
-            <ChevronRight className="w-6 h-6 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-          </Link>
-        ))}
-      </div>
+.gradient-bg {
+  background: radial-gradient(circle at 0% 0%, hsl(var(--primary) / 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 100% 100%, hsl(var(--accent) / 0.08) 0%, transparent 50%),
+              hsl(var(--background));
+  @apply min-h-screen;
+}
 
-      {/* Saved Texts Section */}
-      <div className="space-y-8 pt-8">
-        <div className="flex items-center justify-between px-2">
-          <h2 className="text-3xl font-black flex items-center gap-3">
-            <Bookmark className="text-primary w-8 h-8" />
-            My Saved Vibes
-          </h2>
-          {hasItems && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" className="text-destructive hover:bg-destructive/10 gap-2 rounded-full font-bold">
-                  <Trash2 size={18} /> Clear All
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="rounded-[2.5rem] glass">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="text-2xl font-black">Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription className="text-muted-foreground font-medium">
-                    This will remove all your saved messages from the Profile Hub. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel className="rounded-2xl h-12">Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={clearAllFavorites} className="rounded-2xl h-12 bg-destructive text-white hover:bg-destructive/90">
-                    Yes, Clear All
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
-        </div>
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
-        {hasItems ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {savedTexts.map(text => (
-              <TextCard key={text.id} text={text} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-24 glass rounded-[3rem] border-dashed border-2 border-primary/20 space-y-6">
-            <div className="relative inline-block">
-              <Heart size={64} className="mx-auto text-primary/20 animate-pulse" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <Sparkles size={24} className="text-accent opacity-40" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-2xl font-black text-muted-foreground/60 italic">Your garden is empty.</p>
-              <p className="text-sm text-muted-foreground font-medium">Start exploring and save your favorite vibes here!</p>
-            </div>
-            <Button asChild className="mt-8 rounded-2xl h-14 px-10 shadow-2xl bg-primary text-lg font-black hover:scale-105 transition-transform">
-               <Link href="/texts">Explore Vibes</Link>
-            </Button>
-          </div>
-        )}
-      </div>
-      
-      {/* Footer Branding */}
-      <footer className="text-center py-20 opacity-40">
-        <p className="font-bold tracking-widest uppercase text-[10px]">Your personal romantic retreat • LoveGurden</p>
-      </footer>
-    </div>
-  );
+.animate-gradient-flow {
+  animation: gradient-flow 6s ease infinite;
+}
+
+@keyframes heart-float {
+  0% { transform: translateY(110vh) scale(0.5) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-20vh) scale(1.2) rotate(360deg); opacity: 0; }
+}
+
+.animate-heart-float {
+  animation: heart-float linear infinite;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.click-heart {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  animation: popup-float 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popup-float {
+  0% { transform: translate(-50%, -50%) scale(0) rotate(-20deg); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translate(-50%, -250%) scale(2) rotate(20deg); opacity: 0; }
+}
+
+.active-spring:active {
+  transform: scale(0.95);
+  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
